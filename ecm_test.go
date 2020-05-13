@@ -61,3 +61,27 @@ func TestBitLen(t *testing.T) {
 		}
 	}
 }
+
+func TestOptimalB1(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		n    *Mpz
+		want uint64
+	}{
+		{
+			name: "optimal B1 for 0 is 1358",
+			n:    NewMpz(0),
+			want: 1358,
+		},
+		{
+			name: "optimal B1 for 9128309128301 is 4537",
+			n:    NewMpz(9128309128301),
+			want: 4537,
+		},
+	} {
+		got := tc.n.OptimalB1()
+		if got.B1 != tc.want {
+			t.Errorf("OptimalB1(): %s want / got mismatch: %d / %d", tc.name, tc.want, got.B1)
+		}
+	}
+}

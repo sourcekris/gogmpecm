@@ -31,8 +31,8 @@ type Params struct {
 // B1 encodes an optimal value for B1 per bit length.
 type B1 struct {
 	Bits   int
-	Curves int
 	B1     uint64
+	Curves int
 }
 
 var (
@@ -154,4 +154,26 @@ func (z *Mpz) BitLen() int {
 		return 0
 	}
 	return int(C.mpz_sizeinbase(&z.i[0], 2))
+}
+
+// OptimalB1 returns the best B1 struct given the bit length of z.
+func (z *Mpz) OptimalB1() B1 {
+	for _, b := range OptimalB1s {
+		if b.Bits > z.BitLen() {
+			return b
+		}
+	}
+
+	return OptimalB1s[len(OptimalB1s)-1]
+}
+
+// OptimalB1Uint64 returns the best value of B1 given the bit length of z.
+func (z *Mpz) OptimalB1Uint64() uint64 {
+	for _, b := range OptimalB1s {
+		if b.Bits > z.BitLen() {
+			return b.B1
+		}
+	}
+
+	return OptimalB1s[len(OptimalB1s)-1].B1
 }
