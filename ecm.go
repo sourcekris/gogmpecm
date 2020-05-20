@@ -2,18 +2,24 @@
 package ecm
 
 /*
-#cgo LDFLAGS: -lgmp -lecm
+#cgo LDFLAGS: -lgmp -lecm -lm
 #include <gmp.h>
 #include <ecm.h>
 #include <stdlib.h>
 
 // Macros
 
+void ecm_set_sigma(ecm_params q, mpz_t sig) {
+	q->sigma[0] = *sig;
+}
+
 */
 import "C"
 
 import (
+	"fmt"
 	"runtime"
+	"unsafe"
 )
 
 // Mpz type is a arbitrary precision integer from the GMP library.
@@ -111,12 +117,54 @@ func NewMpz(x int64) *Mpz {
 	return new(Mpz).SetInt64(x)
 }
 
+// NewParams allocates and returns a new ECM Parameters struct.
+func NewParams() *Params {
+	p := new(Params)
+	C.ecm_init(&p.i[0])
+	return p
+}
+
+// SetSigma sets the value of the ecm_params->sigma to sigma.
+func (p *Params) SetSigma(sigma *Mpz) {
+	C.ecm_set_sigma(&p.i[0], &sigma.i[0])
+}
+
 // SetInt64 sets z to x and returns z.
 func (z *Mpz) SetInt64(x int64) *Mpz {
 	z.mpzDoinit()
 	y := C.long(x)
 	C.mpz_set_si(&z.i[0], y)
 	return z
+}
+
+// SetString sets z to the value of s, interpreted in the given base,
+// and returns z and a boolean indicating success. If SetString fails,
+// the value of z is undefined but the returned value is nil.
+//
+// The base argument must be 0 or a value from 2 through MaxBase. If the base
+// is 0, the string prefix determines the actual conversion base. A prefix of
+// ``0x'' or ``0X'' selects base 16; the ``0'' prefix selects base 8, and a
+// ``0b'' or ``0B'' prefix selects base 2. Otherwise the selected base is 10.
+//
+func (z *Mpz) SetString(s string, base int) (*Mpz, bool) {
+	z.mpzDoinit()
+	if base != 0 && (base < 2 || base > 36) {
+		return nil, false
+	}
+	// Skip leading + as mpz_set_str doesn't understand them
+	if len(s) > 1 && s[0] == '+' {
+		s = s[1:]
+	}
+	// mpz_set_str incorrectly parses "0x" and "0b" as valid
+	if base == 0 && len(s) == 2 && s[0] == '0' && (s[1] == 'x' || s[1] == 'X' || s[1] == 'b' || s[1] == 'B') {
+		return nil, false
+	}
+	p := C.CString(s)
+	defer C.free(unsafe.Pointer(p))
+	if C.mpz_set_str(&z.i[0], p, C.int(base)) < 0 {
+		return nil, false
+	}
+	return z, true // err == io.EOF => scan consumed all of s
 }
 
 // Cmp compares Mpz z and y and returns:
@@ -176,4 +224,26 @@ func (z *Mpz) OptimalB1Uint64() uint64 {
 	}
 
 	return OptimalB1s[len(OptimalB1s)-1].B1
+}
+
+// Factor will attempt to factor n given the ecm parameters p and returns the factor if successful
+// or an error. It will attempt to find its own optimal value for B1.
+func (p *Params) Factor(n *Mpz) (*Mpz, error) {
+	fac := NewMpz(0)
+	res := int(C.ecm_factor(&fac.i[0], &n.i[0], C.double(n.OptimalB1Uint64()), &p.i[0]))
+	if res > 0 {
+		return fac, nil
+	}
+	return nil, fmt.Errorf("ecm_factor failed")
+}
+
+// FactorGivenB1 will attempt to factor n given the ecm parameters p and returns the factor if
+// successful or an error. It will use the users value for B1.
+func (p *Params) FactorGivenB1(n *Mpz, b1 uint64) (*Mpz, error) {
+	fac := NewMpz(0)
+	res := int(C.ecm_factor(&fac.i[0], &n.i[0], C.double(b1), &p.i[0]))
+	if res > 0 {
+		return fac, nil
+	}
+	return nil, fmt.Errorf("ecm_factor failed")
 }

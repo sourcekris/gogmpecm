@@ -85,3 +85,28 @@ func TestOptimalB1(t *testing.T) {
 		}
 	}
 }
+
+func TestFactor(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		n    string
+		want *Mpz
+	}{
+		{
+			name: "factors easily - 42 seconds on an AMD Ryzen 3900",
+			n:    "187072209578355573530071658587684226515959365500927",
+			want: NewMpz(2349023),
+		},
+	} {
+		p := NewParams()
+		n, _ := new(Mpz).SetString(tc.n, 10)
+		factor, err := p.Factor(n)
+		if err != nil {
+			t.Errorf("Factor() %s failed: expected no error got error: %v", tc.name, err)
+		}
+
+		if factor.Cmp(tc.want) != 0 {
+			t.Errorf("Factor(): %s want / got mismatch: %v / %v", tc.name, tc.want, factor)
+		}
+	}
+}
