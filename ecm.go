@@ -117,6 +117,23 @@ func NewMpz(x int64) *Mpz {
 	return new(Mpz).SetInt64(x)
 }
 
+// string returns z in the base given
+func (z *Mpz) string(base int) string {
+	if z == nil {
+		return "<nil>"
+	}
+	z.mpzDoinit()
+	p := C.mpz_get_str(nil, C.int(base), &z.i[0])
+	s := C.GoString(p)
+	C.free(unsafe.Pointer(p))
+	return s
+}
+
+// String returns a string value of z in base 10.
+func (z *Mpz) String() string {
+	return z.string(10)
+}
+
 // NewParams allocates and returns a new ECM Parameters struct.
 func NewParams() *Params {
 	p := new(Params)
