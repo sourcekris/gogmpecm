@@ -93,7 +93,7 @@ func TestFactor(t *testing.T) {
 		want *Mpz
 	}{
 		{
-			name: "factors easily - 42 seconds on an AMD Ryzen 3900",
+			name: "factors easily",
 			n:    "187072209578355573530071658587684226515959365500927",
 			want: NewMpz(2349023),
 		},

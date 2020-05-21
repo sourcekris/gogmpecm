@@ -13,6 +13,10 @@ void ecm_set_sigma(ecm_params q, mpz_t sig) {
 	q->sigma[0] = *sig;
 }
 
+mpz_t *ecm_get_sigma(ecm_params q) {
+	return &q->sigma;
+}
+
 */
 import "C"
 
@@ -144,6 +148,14 @@ func NewParams() *Params {
 // SetSigma sets the value of the ecm_params->sigma to sigma.
 func (p *Params) SetSigma(sigma *Mpz) {
 	C.ecm_set_sigma(&p.i[0], &sigma.i[0])
+}
+
+// GetSigma gets the value of the ecm_params->sigma.
+func (p *Params) GetSigma() *Mpz {
+	z := new(Mpz)
+	z.mpzDoinit()
+	z.i = *C.ecm_get_sigma(&p.i[0])
+	return z
 }
 
 // SetInt64 sets z to x and returns z.
