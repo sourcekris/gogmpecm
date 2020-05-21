@@ -223,8 +223,9 @@ func (z *Mpz) BitLen() int {
 
 // OptimalB1 returns the best B1 struct given the bit length of z.
 func (z *Mpz) OptimalB1() B1 {
+	l := z.BitLen() / 2
 	for _, b := range OptimalB1s {
-		if b.Bits > z.BitLen() {
+		if b.Bits > l {
 			return b
 		}
 	}
@@ -234,8 +235,9 @@ func (z *Mpz) OptimalB1() B1 {
 
 // OptimalB1Uint64 returns the best value of B1 given the bit length of z.
 func (z *Mpz) OptimalB1Uint64() uint64 {
+	l := z.BitLen() / 2
 	for _, b := range OptimalB1s {
-		if b.Bits > z.BitLen() {
+		if b.Bits > l {
 			return b.B1
 		}
 	}
