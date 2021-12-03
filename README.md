@@ -48,6 +48,10 @@ See http://ecm.gforge.inria.fr/ for more about GMP-ECM.
     ```
     $ sudo apt install libecm-dev
     ```
+  * For Windows native builds you can:
+   * Use Cygwin (64bit) and install gmp package via the cygwin setup package. 
+   * Download gmp-ecm and compile it from source from [here](https://gitlab.inria.fr/zimmerma/ecm).
+
 
 ## Installation
 

@@ -2,6 +2,7 @@
 package ecm
 
 /*
+#cgo windows LDFLAGS: -Lc:/cygwin64/usr/local/lib
 #cgo LDFLAGS: -lgmp -lecm -lm
 #include <gmp.h>
 #include <ecm.h>
