@@ -45,8 +45,20 @@ See http://ecm.gforge.inria.fr/ for more about GMP-ECM.
   * On modern Linux distributions this is achieved using the package manager. For example on Debian,
     and Ubuntu on Linux and Windows 10 WSL 2.0:
 
-    ```
+    ```shell
     $ sudo apt install libecm-dev
+    ```
+  * On MacOS use homebrew for GMP and then build GMP-ECM from source:
+
+    ```shell
+    $ brew install gmp autoconf automake libtool
+    $ git clone https://gitlab.inria.fr/zimmerma/ecm.git
+    $ cd ecm
+    $ glibtoolize
+    $ autoreconf -i
+    $ ./configure --with-gmp=/opt/homebrew/
+    $ make
+    $ sudo make install
     ```
 
 ## Installation
