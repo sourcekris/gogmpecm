@@ -3,8 +3,8 @@ package ecm
 
 /*
 #cgo darwin CPPFLAGS: -I/opt/homebrew/include/
-#cgo darwin LDFLAGS: -L/opt/homebrew/lib/
-#cgo LDFLAGS: -lgmp -lecm -lm
+#cgo darwin LDFLAGS: /opt/homebrew/lib/libgmp.a /usr/local/lib/libecm.a
+#cgo linux LDFLAGS: -lgmp -lecm -lm
 #include <gmp.h>
 #include <ecm.h>
 #include <stdlib.h>
